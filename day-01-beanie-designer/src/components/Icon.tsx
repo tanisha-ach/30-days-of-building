@@ -16,6 +16,8 @@ const PATHS = {
   download: 'M12 4v11M7 10l5 5 5-5M5 20h14',
   doc: 'M7 3h7l5 5v13H7zM14 3v5h5M10 13h6M10 17h6',
   rotate: 'M20 12a8 8 0 1 1-2.3-5.7M20 4v5h-5',
+  pause: 'M9 5v14M15 5v14',
+  play: 'M7 5v14l12-7z',
   copy: 'M9 9h11v11H9zM5 15H4V4h11v1',
   close: 'M6 6l12 12M18 6 6 18',
   external: 'M14 4h6v6M20 4l-9 9M18 14v6H4V6h6',

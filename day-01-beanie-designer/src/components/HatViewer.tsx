@@ -239,8 +239,12 @@ export function HatViewer() {
         </span>
       </div>
       <div className="viewer-controls">
-        <button className={`btn ghost small ${autoRotate ? 'on' : ''}`} onClick={() => setAutoRotate((v) => !v)}>
-          <Icon name="rotate" /> {autoRotate ? 'Spinning' : 'Spin'}
+        <button
+          className={`btn ghost small ${autoRotate ? 'on' : ''}`}
+          onClick={() => setAutoRotate((v) => !v)}
+          aria-label={autoRotate ? 'Pause rotation' : 'Play rotation'}
+        >
+          <Icon name={autoRotate ? 'pause' : 'play'} /> {autoRotate ? 'Pause' : 'Play'}
         </button>
       </div>
       <div className="viewer-legend">
