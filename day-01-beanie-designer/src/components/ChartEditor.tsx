@@ -74,7 +74,7 @@ export function ChartEditor() {
       ctx.setLineDash([]);
     }
     ctx.fillStyle = '#8a7f77';
-    ctx.font = `${Math.min(10, cell * 0.6)}px Inter, system-ui, sans-serif`;
+    ctx.font = `${Math.min(10, cell * 0.6)}px Nunito, system-ui, sans-serif`;
     ctx.textAlign = 'left';
     ctx.textBaseline = 'middle';
     const every = cell < 13 ? 5 : 1;
@@ -154,7 +154,7 @@ export function ChartEditor() {
     <section className="card chart-card">
       <header className="card-head">
         <div>
-          <h2>Colorwork chart</h2>
+          <h2>Your chart</h2>
           <p className="muted">
             {chart.w} sts × {chart.h} rounds ·{' '}
             {s.placement === 'repeat' ? `${spec.repeats} repeats around ${spec.bodySts} sts` : 'placed once on the front'}
@@ -171,7 +171,7 @@ export function ChartEditor() {
           }}
         >
           <option value="" disabled>
-            Load motif…
+            Start from a motif…
           </option>
           {MOTIFS.map((m) => (
             <option key={m.id} value={m.id}>
@@ -231,7 +231,7 @@ export function ChartEditor() {
         </div>
         <div className="dims">
           <label>
-            W
+            sts
             <input
               type="number"
               min={2}
@@ -243,7 +243,7 @@ export function ChartEditor() {
             />
           </label>
           <label>
-            H
+            rnds
             <input
               type="number"
               min={1}
@@ -312,7 +312,7 @@ export function ChartEditor() {
         <span>
           {hover
             ? `Stitch ${chart.w - hover[0]}, round ${chart.h - hover[1]}`
-            : 'Click or drag to paint. Charts read right to left, bottom to top.'}
+            : 'Paint on the grid — charts read right to left, bottom to top, like knitting.'}
         </span>
         {float > 5 && <span className="warn-pill">Longest float {float} sts</span>}
       </div>

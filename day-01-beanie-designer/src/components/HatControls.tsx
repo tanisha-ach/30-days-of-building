@@ -18,13 +18,13 @@ export function HatControls() {
     <section className="card">
       <header className="card-head">
         <div>
-          <h2>Hat</h2>
-          <p className="muted">Styles follow Purl Soho patterns; numbers update with your gauge.</p>
+          <h2>Your hat</h2>
+          <p className="muted">Shapes follow Purl Soho patterns, and the numbers follow your gauge.</p>
         </div>
       </header>
 
       <div className="field">
-        <span className="field-label">Style</span>
+        <span className="field-label">Which hat</span>
         <div className="type-grid">
           {HAT_TYPES.map((t) => (
             <button
@@ -46,7 +46,7 @@ export function HatControls() {
       </div>
 
       <div className="field">
-        <span className="field-label">Size</span>
+        <span className="field-label">Who it's for</span>
         <div className="seg seg-wide" role="radiogroup" aria-label="Size">
           {HAT_SIZES.map((z) => (
             <button
@@ -70,7 +70,7 @@ export function HatControls() {
 
       <div className="field">
         <div className="field-row">
-          <span className="field-label">Gauge over 4"</span>
+          <span className="field-label">Your gauge over 4"</span>
           <label className="check">
             <input
               type="checkbox"
@@ -130,7 +130,7 @@ export function HatControls() {
       </div>
 
       <div className="field">
-        <span className="field-label">Motif placement</span>
+        <span className="field-label">Where the motif sits</span>
         <div className="seg seg-wide" role="radiogroup" aria-label="Motif placement">
           <button
             className={s.placement === 'repeat' ? 'on' : ''}

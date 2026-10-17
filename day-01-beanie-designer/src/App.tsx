@@ -29,7 +29,7 @@ export default function App() {
           </span>
           <div>
             <h1>Beanie Designer</h1>
-            <p>Colorwork hat studio</p>
+            <p>Paint stitches, watch them grow</p>
           </div>
         </div>
         <div className="row-actions">
@@ -37,10 +37,10 @@ export default function App() {
             className="btn ghost"
             onClick={() => download(renderChartPng(chart, palette, spec), `${spec.type.id}-${spec.size.id}-chart.png`)}
           >
-            <Icon name="download" /> Chart PNG
+            <Icon name="download" /> Save chart
           </button>
           <button className="btn primary" onClick={() => setShowPattern(true)}>
-            <Icon name="doc" /> Written pattern
+            <Icon name="doc" /> Read the pattern
           </button>
         </div>
       </header>
@@ -53,7 +53,7 @@ export default function App() {
         </div>
         <div className="right">
           <div className="viewer-card">
-            <Suspense fallback={<div className="viewer loading">Loading 3D preview…</div>}>
+            <Suspense fallback={<div className="viewer loading">Warming up the needles…</div>}>
               <HatViewer />
             </Suspense>
           </div>
