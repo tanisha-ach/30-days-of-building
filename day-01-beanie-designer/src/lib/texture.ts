@@ -26,8 +26,8 @@ const spriteCache = new Map<string, HTMLCanvasElement>();
  * One stitch as a small sprite. `color === null` draws the height map used
  * for the bump texture instead of the colour map.
  */
-function sprite(kind: StitchKind, color: string | null, w: number, h: number, flip: boolean, lean = 0): HTMLCanvasElement {
-  const key = `${kind}|${color}|${w}|${h}|${flip}|${lean}`;
+function sprite(kind: StitchKind, color: string | null, w: number, h: number, flip: boolean, lean = 0, column = false): HTMLCanvasElement {
+  const key = `${kind}|${color}|${w}|${h}|${flip}|${lean}|${column}`;
   const hit = spriteCache.get(key);
   if (hit) return hit;
   const cv = document.createElement('canvas');
@@ -37,6 +37,21 @@ function sprite(kind: StitchKind, color: string | null, w: number, h: number, fl
   const bump = color === null;
   ctx.fillStyle = bump ? '#262626' : shade(color, kind === 'purl' ? -0.16 : -0.36);
   ctx.fillRect(0, 0, w, h);
+
+  if (column && kind !== 'purl') {
+    const g = ctx.createLinearGradient(0, 0, w, 0);
+    g.addColorStop(0, bump ? '#6a6a6a' : shade(color, -0.22));
+    g.addColorStop(0.35, bump ? '#f0f0f0' : shade(color, 0.14));
+    g.addColorStop(0.55, bump ? '#c8c8c8' : color);
+    g.addColorStop(1, bump ? '#4a4a4a' : shade(color, -0.28));
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    ctx.roundRect(w * 0.08, -h * 0.08, w * 0.84, h * 1.16, Math.min(w, h) * 0.35);
+    ctx.fill();
+    spriteCache.set(key, cv);
+    if (spriteCache.size > 4000) spriteCache.clear();
+    return cv;
+  }
 
   if (kind === 'purl') {
     const g = ctx.createRadialGradient(w / 2, h / 2, 0, w / 2, h / 2, w * 0.6);
@@ -256,24 +271,25 @@ export function drawRib(sts: number, rowsPerIn: number, rib: string, color: stri
   const out = canvasPair(sts * cw, rows * rh);
   const c = out.color.getContext('2d')!;
   const b = out.bump.getContext('2d')!;
+  const columns = /[PS]/.test(rib) && rib.length > 1;
   for (let r = 0; r < rows; r++) {
     const y = (rows - 1 - r) * rh;
     for (let col = 0; col < sts; col++) {
       const k = rib[col % rib.length];
       if (k === 'S') {
         if (r % 2 === 0) {
-          c.drawImage(sprite('slip', color, cw, rh * 2, false), col * cw, y - rh);
-          b.drawImage(sprite('slip', null, cw, rh * 2, false), col * cw, y - rh);
+          c.drawImage(sprite('slip', color, cw, rh * 2, false, 0, columns), col * cw, y - rh);
+          b.drawImage(sprite('slip', null, cw, rh * 2, false, 0, columns), col * cw, y - rh);
         }
         continue;
       }
       const kind: StitchKind = k === 'P' ? 'purl' : 'knit';
       const col2 = kind === 'purl' && rib.length > 1 ? shade(color, -0.06) : color;
-      c.drawImage(sprite(kind, col2, cw, rh, false), col * cw, y);
-      b.drawImage(sprite(kind, null, cw, rh, false), col * cw, y);
+      c.drawImage(sprite(kind, col2, cw, rh, false, 0, columns), col * cw, y);
+      b.drawImage(sprite(kind, null, cw, rh, false, 0, columns), col * cw, y);
     }
   }
-  if (rib.includes('P') && rib.length > 1) {
+  if (columns) {
     // Purl columns sit in shadow behind the knit ribs. The mesh carries the relief itself,
     // so only the colour map is shaded; adding it to the bump map too doubles the edges.
     c.globalCompositeOperation = 'multiply';

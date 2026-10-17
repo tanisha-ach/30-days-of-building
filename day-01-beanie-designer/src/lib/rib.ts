@@ -1,18 +1,20 @@
-/** Runs of raised (non-purl) columns in one repeat: [start, length]. */
+const valley = (ch: string) => ch === 'P' || ch === 'S';
+
+/** Runs of raised (knit) columns in one repeat: [start, length]. */
 function raisedRuns(rib: string): [number, number][] {
   const n = rib.length;
-  const first = rib.indexOf('P');
+  const first = [...rib].findIndex(valley);
   if (first < 0) return [];
   const runs: [number, number][] = [];
   let i = 0;
   while (i < n) {
     const at = (first + i) % n;
-    if (rib[at] === 'P') {
+    if (valley(rib[at])) {
       i++;
       continue;
     }
     let m = 0;
-    while (m < n && rib[(at + m) % n] !== 'P') m++;
+    while (m < n && !valley(rib[(at + m) % n])) m++;
     runs.push([at, m]);
     i += m;
   }
@@ -24,9 +26,9 @@ const cache = new Map<string, { runs: [number, number][]; w: number }>();
 /**
  * Relief across a rib, 0 at the bottom of a purl valley to 1 on a knit crest;
  * `x` is measured in stitches. Each group of knit columns forms one rounded
- * ridge that pulls in over its purl neighbours until neighbouring ridges meet
- * in a crease, as relaxed ribbing does, with a faint groove between the knit
- * columns. Patterns without purls return 1.
+ * ridge that pulls in over its purl or slip neighbours until neighbouring
+ * ridges meet in a crease, as relaxed ribbing does, with a faint groove
+ * between the knit columns. Patterns without valleys return 1.
  */
 export function ribRelief(rib: string, x: number): number {
   let hit = cache.get(rib);

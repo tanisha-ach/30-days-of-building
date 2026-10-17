@@ -701,7 +701,7 @@ input[type='range'] {
   border-radius: 22px;
   overflow: hidden;
   border: 1px solid var(--line);
-  background: radial-gradient(120% 90% at 50% 30%, #fffaf4 0%, #f1e6db 60%, #e7d9cc 100%);
+  background: #ffffff;
   box-shadow: var(--shadow);
 }
 .viewer {

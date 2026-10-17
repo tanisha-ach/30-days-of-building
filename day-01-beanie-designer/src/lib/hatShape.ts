@@ -86,10 +86,10 @@ function weldSeam(g: THREE.BufferGeometry, rows: number, segments: number) {
   }
 }
 
-/** Raised knit columns and sunken purl columns, so ribbing has real depth. */
+/** Raised knit columns and sunken purl/slip columns, so ribbing has real depth. */
 function flute(g: THREE.BufferGeometry, sts: number, rib: string, depth: number) {
   if (!/[PS]/.test(rib)) return;
-  const grouped = rib.includes('P');
+  const grouped = rib.length > 1;
   const p = g.attributes.position as THREE.BufferAttribute;
   const uv = g.attributes.uv as THREE.BufferAttribute;
   for (let i = 0; i < p.count; i++) {
@@ -108,6 +108,65 @@ function flute(g: THREE.BufferGeometry, sts: number, rib: string, depth: number)
     const s = (r + depth * (h - 0.55)) / r;
     p.setXYZ(i, px * s, p.getY(i), pz * s);
   }
+}
+
+/** Closed double-layer cuff: inner face, rounded hem fold, outer face, top roll. */
+function doubleCuffPts(ribR: number, yTop: number, th: number, ease = 0.05): Pt[] {
+  const ro0 = ribR + 2 * th;
+  const ro1 = ro0 - ease;
+  const p: Pt[] = [];
+  for (let i = 0; i <= 10; i++) p.push([ribR, yTop - ((yTop - th) * i) / 10]);
+  for (let i = 1; i <= 16; i++) {
+    const t = Math.PI + (i / 16) * Math.PI;
+    p.push([ribR + th + th * Math.cos(t), th + th * Math.sin(t)]);
+  }
+  for (let i = 1; i <= 16; i++) {
+    const t = i / 16;
+    p.push([ro0 + (ro1 - ro0) * t + 0.025 * Math.sin(Math.PI * t), th + (yTop - th) * t]);
+  }
+  for (let i = 1; i <= 16; i++) {
+    const t = (i / 16) * Math.PI;
+    p.push([ro1 - th + th * Math.cos(t), yTop + th * Math.sin(t)]);
+  }
+  return p;
+}
+
+/** Hemmed double cuff that stays close to the body radius — soft fold, not a can. */
+function hemCuffPts(ribR: number, h: number): Pt[] {
+  const Ro = ribR + 0.09;
+  const rB = Math.min(0.16, h * 0.12);
+  const rT = Math.min(0.1, h * 0.08);
+  const p: Pt[] = [[Ro - 0.22, 0.03]];
+  for (let i = 0; i <= 14; i++) {
+    const t = -Math.PI / 2 + (i / 14) * (Math.PI / 2);
+    p.push([Ro - rB + rB * Math.cos(t), rB + rB * Math.sin(t)]);
+  }
+  for (let i = 1; i <= 16; i++) {
+    const t = i / 16;
+    p.push([Ro + 0.02 * Math.sin(Math.PI * t), rB + (h - rT - rB) * t]);
+  }
+  p.push([Ro - 0.03, h], [ribR, h + 0.03]);
+  return p;
+}
+
+/** Single-layer rib band with rounded top and bottom edges. */
+function ribBandPts(ribR: number, h: number, th: number): Pt[] {
+  const rad = Math.min(th * 0.5, h * 0.28);
+  const ri = ribR;
+  const ro = ribR + 2 * rad;
+  const p: Pt[] = [];
+  p.push([ri, h - rad]);
+  p.push([ri, rad]);
+  for (let i = 1; i <= 14; i++) {
+    const t = Math.PI + (i / 14) * Math.PI;
+    p.push([ri + rad + rad * Math.cos(t), rad + rad * Math.sin(t)]);
+  }
+  p.push([ro, h - rad]);
+  for (let i = 1; i <= 14; i++) {
+    const t = (i / 14) * Math.PI;
+    p.push([ro - rad + rad * Math.cos(t), h - rad + rad * Math.sin(t)]);
+  }
+  return p;
 }
 
 function latheFrom(pts: Pt[], segments: number, vScale: number, n = Math.max(32, pts.length * 2)) {
@@ -132,21 +191,26 @@ export function buildHatShape(spec: HatSpec): HatShape {
   const ribR = R * 0.955;
   const fold = spec.foldIn * k;
   const band = (kind === 'hem-cuff' ? spec.dims.brimIn : spec.brimBandIn) * k;
-  const bodyStart = kind === 'rolled' ? 0 : band;
+  // A single-layer rib reads as a painted stripe unless it has a little extra depth.
+  const visBand = kind === 'rib' ? Math.max(band * 1.4, Math.min(1.85 * k, 0.52 * R)) : band;
+  const bodyStart = kind === 'rolled' ? 0 : visBand;
   const L = (spec.bodyIn + spec.crownIn) * k;
   const crownLen = spec.crownIn * k;
 
-  // A folded cuff is two layers of rib; its edges turn on a radius of about one layer's thickness.
-  const cuffed = kind === 'fold-cuff';
-  const th = Math.max(0.15, Math.min(0.24, 2.8 / spec.stsPerIn));
+  // Fold-cuff and the plain rib band share the smooth tapered body; the short
+  // hemmed hat keeps its taller worn dome so the cuff does not swallow it.
+  const foldCuff = kind === 'fold-cuff';
+  const ribBand = kind === 'rib';
+  const shaped = foldCuff || ribBand;
+  const th = Math.max(0.15, Math.min(ribBand ? 0.38 : 0.24, (ribBand ? 2.2 : 2.8) / spec.stsPerIn));
   // With the whole rib folded the body rises straight out of the cuff; otherwise it grows out of the bare rib.
-  const bareRib = cuffed && band > fold + 0.05;
+  const bareRib = foldCuff && band > fold + 0.05;
 
   // The crown follows the head: a softly squared dome about as tall as the head is wide.
-  const a = R * (cuffed ? 0.94 : 0.97);
+  const a = R * (shaped ? 0.94 : 0.97);
   const c = type.crown;
-  // Paired decreases spaced every 3rd round give a slightly peaked crown; quick 4-section crowns sit blunter.
-  const n = cuffed ? 2.15 : c.kind === 'paired' ? (c.thirdRoundShare > 0 ? 1.85 : 2.45) : 2.2;
+  // Paired decreases spaced every 3rd round give a slightly peaked crown; a folded cuff sits blunter.
+  const n = foldCuff ? 2.15 : c.kind === 'paired' ? (c.thirdRoundShare > 0 ? 1.85 : 2.45) : 2.2;
   const headArc = domeArc(a, R * 1.08, n);
   const dArc = Math.min(headArc, L * 0.98);
   const b = solveDome(a, dArc, n);
@@ -156,11 +220,11 @@ export function buildHatShape(spec: HatSpec): HatShape {
   // Fabric beyond what the head fills (about 2¼" of straight sides on an adult) drapes back as slouch.
   const fitCyl = Math.max(0.4, 2.2 * (R / 3.5) - bodyStart);
   const excess = Math.max(0, cylH - fitCyl);
-  // A cuffed body is drawn as one smooth taper, so its slouch is a gentle lean rather than a bulge.
-  const slouch = Math.min(cuffed ? 0.3 : 0.5, excess / (0.85 * R) + type.slouch * 0.6);
+  // Shaped bodies are one smooth taper, so slouch is a gentle lean rather than a bulge.
+  const slouch = Math.min(shaped ? 0.3 : 0.5, excess / (0.85 * R) + type.slouch * 0.6);
   const pivot = bodyStart + Math.min(cylH, fitCyl);
   const span = Math.max(0.5, topY + b - pivot);
-  const swellAmt = cuffed ? 0.015 : 0.06 + 0.1 * Math.min(1, excess / (2 * R));
+  const swellAmt = shaped ? 0.015 : 0.06 + 0.1 * Math.min(1, excess / (2 * R));
 
   const bend = (v: THREE.Vector3) => {
     const d = v.y - pivot;
@@ -176,18 +240,19 @@ export function buildHatShape(spec: HatSpec): HatShape {
 
   const rStart = kind === 'rolled' ? R * 0.985 : ribR;
   const pts: Pt[] = [];
-  // Hidden skirt tucked down inside the cuff's top roll, so no gap shows where the body meets it.
-  const skirt = cuffed && !bareRib ? 1.5 * th : 0;
+  // Hidden skirt tucked down inside the folded cuff's top roll. The hemmed
+  // short hat keeps the body sitting on the cuff so its worn height stays.
+  const skirt = foldCuff && !bareRib ? 1.5 * th : 0;
   if (skirt) pts.push([R - 0.02, bodyStart - skirt]);
   const steps = 48;
   for (let i = 0; i <= steps && cylH > 0; i++) {
     const t = i / steps;
     const y = t * cylH;
     let r: number;
-    if (cuffed && !bareRib) r = R + (a - R) * t * t;
+    if (shaped && !bareRib) r = R + (a - R) * t * t;
     else {
       r = rStart + (R - rStart) * smooth(y / 0.9);
-      if (!cuffed) r += R * 0.028 * Math.sin(Math.PI * Math.min(1, t * 1.15));
+      if (!shaped) r += R * 0.028 * Math.sin(Math.PI * Math.min(1, t * 1.15));
       r += (a - R) * t * t;
     }
     pts.push([r, bodyStart + y]);
@@ -215,7 +280,7 @@ export function buildHatShape(spec: HatSpec): HatShape {
     let f = 1 + 0.006 * Math.sin(5 * phi + 7 * v) * Math.sin(2 * phi + 1.3);
     if (v > crown0) {
       const t = (v - crown0) / (1 - crown0);
-      f += (cuffed ? 0.012 : 0.03) * Math.sin(Math.PI * Math.min(1, t * 1.1)) * Math.cos(2 * Math.PI * S * u);
+      f += (shaped ? 0.012 : 0.03) * Math.sin(Math.PI * Math.min(1, t * 1.1)) * Math.cos(2 * Math.PI * S * u);
     }
     v3.x *= f;
     v3.z *= f;
@@ -233,8 +298,12 @@ export function buildHatShape(spec: HatSpec): HatShape {
   }
 
   const rib = type.brim.rib;
-  // Knit-purl ribs are much deeper than the per-stitch ripple of a slip-stitch rib.
-  const depth = rib.includes('P') ? Math.min(0.08, 0.6 / spec.stsPerIn) : Math.min(0.11, 0.3 / spec.stsPerIn);
+  // Grouped knit/purl or knit/slip ribs share one rounded ridge per knit run.
+  const depth = rib.includes('P')
+    ? Math.min(0.08, 0.6 / spec.stsPerIn)
+    : rib.includes('S')
+      ? Math.min(0.032, 0.22 / spec.stsPerIn)
+      : Math.min(0.11, 0.3 / spec.stsPerIn);
   const ribSeg = Math.min(1600, Math.max(256, spec.brimSts * 8));
   const vScale = 1 / k;
   const brims: HatShape['brims'] = [];
@@ -247,47 +316,16 @@ export function buildHatShape(spec: HatSpec): HatShape {
   };
 
   if (kind === 'rib') {
-    addRib([
-      [ribR - 0.12, 0],
-      [ribR - 0.03, 0.03],
-      [ribR, 0.12],
-      [ribR, band],
-      [ribR + 0.01, band + 0.06],
-    ]);
+    addRib(ribBandPts(ribR, visBand, th));
   } else if (kind === 'hem-cuff') {
-    const Ro = ribR + 0.08;
-    const arc: Pt[] = [];
-    for (let i = 0; i <= 12; i++) {
-      const th = -Math.PI / 2 + (i / 12) * (Math.PI / 2);
-      arc.push([Ro - 0.14 + 0.14 * Math.cos(th), 0.14 + 0.14 * Math.sin(th)]);
-    }
-    addRib([[Ro - 0.26, 0.02], ...arc, [Ro, band - 0.08], [Ro - 0.04, band], [ribR, band + 0.04]]);
+    addRib(hemCuffPts(ribR, visBand));
   } else if (kind === 'fold-cuff') {
     if (bareRib)
       addRib([
         [ribR, fold - th],
         [ribR, band + 0.06],
       ]);
-    // One closed loop: inner layer down, round the soft folded edge, up the outside
-    // (easing in a touch toward the top), then rolling back over the top edge.
-    const ro0 = ribR + 2 * th;
-    const ro1 = ro0 - 0.05;
-    const yTop = fold - th;
-    const p: Pt[] = [];
-    for (let i = 0; i <= 10; i++) p.push([ribR, yTop - ((yTop - th) * i) / 10]);
-    for (let i = 1; i <= 16; i++) {
-      const t = Math.PI + (i / 16) * Math.PI;
-      p.push([ribR + th + th * Math.cos(t), th + th * Math.sin(t)]);
-    }
-    for (let i = 1; i <= 16; i++) {
-      const t = i / 16;
-      p.push([ro0 + (ro1 - ro0) * t + 0.025 * Math.sin(Math.PI * t), th + (yTop - th) * t]);
-    }
-    for (let i = 1; i <= 16; i++) {
-      const t = (i / 16) * Math.PI;
-      p.push([ro1 - th + th * Math.cos(t), yTop + th * Math.sin(t)]);
-    }
-    addRib(p);
+    addRib(doubleCuffPts(ribR, fold - th, th));
   } else {
     const tube = Math.max(0.16, Math.min(0.34, 0.12 + 0.55 / spec.stsPerIn));
     const g = new THREE.TorusGeometry(R * 0.965 + tube * 0.2, tube, 24, 256);

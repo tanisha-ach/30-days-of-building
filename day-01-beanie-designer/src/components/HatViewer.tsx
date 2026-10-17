@@ -202,23 +202,25 @@ export function HatViewer() {
         dpr={[1, 2]}
         camera={{ position: [11, 8.5, 16], fov: FOV }}
         gl={{ preserveDrawingBuffer: true, antialias: true, toneMappingExposure: 1.05 }}
+        style={{ background: '#ffffff' }}
       >
-        <ambientLight intensity={0.25} />
+        <color attach="background" args={['#ffffff']} />
+        <ambientLight intensity={0.32} />
         <directionalLight
           position={[-7, 14, 10]}
-          intensity={1.9}
-          color="#fff4e8"
+          intensity={1.75}
+          color="#ffffff"
           castShadow
           shadow-mapSize={[2048, 2048]}
           shadow-bias={-0.0004}
         />
-        <directionalLight position={[9, 5, 6]} intensity={0.45} color="#e7eeff" />
-        <directionalLight position={[2, 8, -12]} intensity={0.9} color="#ffe2cc" />
+        <directionalLight position={[9, 5, 6]} intensity={0.45} color="#f4f7ff" />
+        <directionalLight position={[2, 8, -12]} intensity={0.7} color="#ffffff" />
         <Environment resolution={128}>
-          <Lightformer intensity={1.6} position={[-4, 9, 8]} scale={[14, 7, 1]} color="#fff3e6" />
-          <Lightformer intensity={0.7} position={[-10, 2, 0]} rotation-y={Math.PI / 2} scale={[10, 10, 1]} color="#ffe8d6" />
-          <Lightformer intensity={0.6} position={[10, 1, -2]} rotation-y={-Math.PI / 2} scale={[10, 10, 1]} color="#e2eaff" />
-          <Lightformer intensity={0.5} position={[0, -6, 0]} rotation-x={-Math.PI / 2} scale={[20, 20, 1]} color="#f1e6db" />
+          <Lightformer intensity={1.5} position={[-4, 9, 8]} scale={[14, 7, 1]} color="#ffffff" />
+          <Lightformer intensity={0.65} position={[-10, 2, 0]} rotation-y={Math.PI / 2} scale={[10, 10, 1]} color="#ffffff" />
+          <Lightformer intensity={0.55} position={[10, 1, -2]} rotation-y={-Math.PI / 2} scale={[10, 10, 1]} color="#f3f6ff" />
+          <Lightformer intensity={0.55} position={[0, -6, 0]} rotation-x={-Math.PI / 2} scale={[20, 20, 1]} color="#ffffff" />
         </Environment>
         <HatModel spec={spec} shape={shape} />
         <ContactShadows position={[0, -0.12, 0]} opacity={0.38} blur={2.4} scale={shape.R * 6} far={6} resolution={512} />
