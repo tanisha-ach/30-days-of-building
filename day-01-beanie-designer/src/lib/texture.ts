@@ -1,4 +1,5 @@
 import type { Chart } from './chart';
+import { ribRelief } from './rib';
 import { bodyCell, type HatSpec, type Placement } from './spec';
 
 export type StitchKind = 'knit' | 'purl' | 'slip';
@@ -272,15 +273,16 @@ export function drawRib(sts: number, rowsPerIn: number, rib: string, color: stri
       b.drawImage(sprite(kind, null, cw, rh, false), col * cw, y);
     }
   }
-  if (rib.length > 1) {
-    // Purl columns sit behind the knit ribs.
-    b.globalCompositeOperation = 'multiply';
-    for (let col = 0; col < sts; col++) {
-      if (rib[col % rib.length] !== 'P') continue;
-      b.fillStyle = '#5a5a5a';
-      b.fillRect(col * cw, 0, cw, rows * rh);
+  if (rib.includes('P') && rib.length > 1) {
+    // Purl columns sit in shadow behind the knit ribs. The mesh carries the relief itself,
+    // so only the colour map is shaded; adding it to the bump map too doubles the edges.
+    c.globalCompositeOperation = 'multiply';
+    for (let x = 0; x < sts * cw; x++) {
+      const v = Math.round(255 * (0.42 + 0.58 * ribRelief(rib, (x + 0.5) / cw) ** 1.6));
+      c.fillStyle = `rgb(${v},${v},${v})`;
+      c.fillRect(x, 0, 1, rows * rh);
     }
-    b.globalCompositeOperation = 'source-over';
+    c.globalCompositeOperation = 'source-over';
   }
   yarnify(c, b, sts * cw, rows * rh, sts, rows);
   return { ...out, rowsPerInch: rows };

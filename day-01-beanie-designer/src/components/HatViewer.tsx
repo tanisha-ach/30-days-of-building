@@ -131,8 +131,14 @@ function HatModel({ spec, shape }: { spec: HatSpec; shape: HatShape }) {
     // Heads are oval, a little deeper than they are wide.
     <group scale={[0.97, 1, 1.03]}>
       {bodyColor && (
-        <mesh geometry={shape.body} castShadow receiveShadow>
-          <meshPhysicalMaterial map={bodyColor} bumpMap={bodyBump} bumpScale={1.6} {...FABRIC} />
+        <mesh key={shape.body.attributes.color ? 'ao' : 'plain'} geometry={shape.body} castShadow receiveShadow>
+          <meshPhysicalMaterial
+            map={bodyColor}
+            bumpMap={bodyBump}
+            bumpScale={1.6}
+            vertexColors={!!shape.body.attributes.color}
+            {...FABRIC}
+          />
         </mesh>
       )}
       {shape.brims.map(({ geo, purl: isPurl }, i) => (
