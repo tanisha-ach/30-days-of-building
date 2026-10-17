@@ -1,10 +1,6 @@
-import { HAT_TYPES } from '../config/hatTypes';
-import { HAT_SIZES } from '../config/sizes';
 import { colorName } from '../lib/pattern';
 import { useDesign } from '../store';
 import { useSpec } from '../useSpec';
-import { Icon } from './Icon';
-import { HatGlyph } from './HatGlyph';
 
 const fmt = (n: number) => (Math.round(n * 4) / 4).toString().replace('.25', '¼').replace('.5', '½').replace('.75', '¾');
 
@@ -16,58 +12,6 @@ export function HatControls() {
 
   return (
     <section className="card">
-      <header className="card-head">
-        <div>
-          <h2>Your hat</h2>
-          <p className="muted">Shapes follow Purl Soho patterns, and the numbers follow your gauge.</p>
-        </div>
-      </header>
-
-      <div className="field">
-        <span className="field-label">Which hat</span>
-        <div className="type-grid">
-          {HAT_TYPES.map((t) => (
-            <button
-              key={t.id}
-              className={`type-card ${s.hatTypeId === t.id ? 'on' : ''}`}
-              onClick={() => s.setHatType(t.id)}
-              aria-pressed={s.hatTypeId === t.id}
-            >
-              <HatGlyph type={t} />
-              <span className="type-name">{t.name}</span>
-              <span className="type-tag">{t.tagline}</span>
-            </button>
-          ))}
-        </div>
-        <a className="source-link" href={type.source.url} target="_blank" rel="noreferrer">
-          <Icon name="external" size={13} /> {type.source.title}
-        </a>
-        {type.assumptions.length > 0 && <p className="note">{type.assumptions.join(' ')}</p>}
-      </div>
-
-      <div className="field">
-        <span className="field-label">Who it's for</span>
-        <div className="seg seg-wide" role="radiogroup" aria-label="Size">
-          {HAT_SIZES.map((z) => (
-            <button
-              key={z.id}
-              className={s.sizeId === z.id ? 'on' : ''}
-              onClick={() => s.set({ sizeId: z.id })}
-              role="radio"
-              aria-checked={s.sizeId === z.id}
-            >
-              <span>{z.name}</span>
-              <small>
-                {z.head[0]}–{z.head[1]}"
-              </small>
-            </button>
-          ))}
-        </div>
-        {type.extrapolatedSizes.includes(spec.size.id) && (
-          <p className="note">This size isn't in the source pattern — measurements are interpolated.</p>
-        )}
-      </div>
-
       <div className="field">
         <div className="field-row">
           <span className="field-label">Your gauge over 4"</span>
@@ -108,11 +52,7 @@ export function HatControls() {
         </div>
       </div>
 
-      <div className="stats">
-        <div>
-          <b>{type.construction === 'top-down' ? spec.crown.endSts : spec.brimSts}</b>
-          <span>{type.construction === 'top-down' ? 'cast on at crown' : 'cast on'}</span>
-        </div>
+      <div className="stats stats-compact">
         <div>
           <b>{spec.bodySts}</b>
           <span>sts around</span>
@@ -127,59 +67,6 @@ export function HatControls() {
           </b>
           <span>finished</span>
         </div>
-      </div>
-
-      <div className="field">
-        <span className="field-label">Where the motif sits</span>
-        <div className="seg seg-wide" role="radiogroup" aria-label="Motif placement">
-          <button
-            className={s.placement === 'repeat' ? 'on' : ''}
-            onClick={() => s.set({ placement: 'repeat' })}
-            role="radio"
-            aria-checked={s.placement === 'repeat'}
-          >
-            Repeat around
-          </button>
-          <button
-            className={s.placement === 'single' ? 'on' : ''}
-            onClick={() => s.set({ placement: 'single' })}
-            role="radio"
-            aria-checked={s.placement === 'single'}
-          >
-            Once on the front
-          </button>
-        </div>
-        {s.placement === 'repeat' && (
-          <>
-            <label className="check">
-              <input type="checkbox" checked={s.tileVertical} onChange={(e) => s.set({ tileVertical: e.target.checked })} />
-              Also repeat up the body (all-over pattern)
-            </label>
-            {spec.goodWidths.length > 0 && (
-              <div className="widths">
-                <span className="muted">Repeat widths that fit this size:</span>
-                {spec.goodWidths.map((w) => (
-                  <button key={w} className={`pill ${w === s.chart.w ? 'on' : ''}`} onClick={() => s.resize(w, s.chart.h)}>
-                    {w}
-                  </button>
-                ))}
-              </div>
-            )}
-          </>
-        )}
-        {!(s.placement === 'repeat' && s.tileVertical) && (
-          <label className="slider">
-            <span>Height on the body</span>
-            <input
-              type="range"
-              min={0}
-              max={1}
-              step={0.01}
-              value={s.verticalPos}
-              onChange={(e) => s.set({ verticalPos: +e.target.value })}
-            />
-          </label>
-        )}
       </div>
 
       <div className="field two">

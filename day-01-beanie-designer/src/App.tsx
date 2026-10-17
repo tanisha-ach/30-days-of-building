@@ -1,6 +1,7 @@
 import { lazy, Suspense, useState } from 'react';
 import { ChartEditor } from './components/ChartEditor';
 import { HatControls } from './components/HatControls';
+import { HatPicker } from './components/HatPicker';
 import { Icon } from './components/Icon';
 import { ImageImport } from './components/ImageImport';
 import { PatternDialog, usePatternText } from './components/PatternDialog';
@@ -11,10 +12,9 @@ const HatViewer = lazy(() => import('./components/HatViewer').then((m) => ({ def
 
 export default function App() {
   const [showPattern, setShowPattern] = useState(false);
-  const { spec, sections } = usePatternText();
+  const { spec } = usePatternText();
   const chart = useDesign((s) => s.chart);
   const palette = useDesign((s) => s.palette);
-  const glance = sections[sections.length - 1];
 
   return (
     <div className="app">
@@ -57,17 +57,7 @@ export default function App() {
               <HatViewer />
             </Suspense>
           </div>
-          <div className="glance card">
-            {glance.lines.map((l) => {
-              const [k, v] = l.split(': ');
-              return (
-                <div key={l}>
-                  <span>{k}</span>
-                  <b>{v}</b>
-                </div>
-              );
-            })}
-          </div>
+          <HatPicker />
         </div>
       </main>
       {showPattern && <PatternDialog onClose={() => setShowPattern(false)} />}

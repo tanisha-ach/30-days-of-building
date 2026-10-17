@@ -3,6 +3,8 @@ import { Canvas, useThree } from '@react-three/fiber';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import * as THREE from 'three';
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
+import { HAT_TYPES } from '../config/hatTypes';
+import { HAT_SIZES, type SizeId } from '../config/sizes';
 import { buildHatShape, type HatShape } from '../lib/hatShape';
 import type { HatSpec } from '../lib/spec';
 import { drawBody, drawRib } from '../lib/texture';
@@ -192,8 +194,13 @@ function CameraRig({ bounds }: { bounds: THREE.Box3 }) {
 
 export function HatViewer() {
   const spec = useSpec();
+  const hatTypeId = useDesign((s) => s.hatTypeId);
+  const sizeId = useDesign((s) => s.sizeId);
+  const setHatType = useDesign((s) => s.setHatType);
+  const set = useDesign((s) => s.set);
   const [autoRotate, setAutoRotate] = useState(() => !new URLSearchParams(location.search).has('still'));
   const shape = useMemo(() => buildHatShape(spec), [spec]);
+  const totalRnds = spec.brimRows + spec.bodyRows + spec.crown.rows;
 
   return (
     <div className="viewer">
@@ -235,10 +242,26 @@ export function HatViewer() {
         <CameraRig bounds={shape.bounds} />
       </Canvas>
       <div className="viewer-overlay">
-        <span className="badge">{spec.type.name}</span>
-        <span className="badge subtle">
-          {spec.size.name} · {spec.bodySts} sts · {spec.brimRows + spec.bodyRows + spec.crown.rows} rnds
-        </span>
+        <label className="overlay-select">
+          <span className="sr-only">Hat type</span>
+          <select value={hatTypeId} onChange={(e) => setHatType(e.target.value)} aria-label="Hat type">
+            {HAT_TYPES.map((t) => (
+              <option key={t.id} value={t.id}>
+                {t.name}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="overlay-select subtle">
+          <span className="sr-only">Size</span>
+          <select value={sizeId} onChange={(e) => set({ sizeId: e.target.value as SizeId })} aria-label="Size">
+            {HAT_SIZES.map((z) => (
+              <option key={z.id} value={z.id}>
+                {z.id === sizeId ? `${z.name} · ${spec.bodySts} sts · ${totalRnds} rnds` : z.name}
+              </option>
+            ))}
+          </select>
+        </label>
       </div>
       <div className="viewer-controls">
         <button
@@ -248,18 +271,6 @@ export function HatViewer() {
         >
           <Icon name={autoRotate ? 'pause' : 'play'} /> {autoRotate ? 'Pause' : 'Play'}
         </button>
-      </div>
-      <div className="viewer-legend">
-        <span>
-          <i className="lg brim" /> {spec.type.brim.label}
-        </span>
-        <span>
-          <i className="lg body" /> {spec.finishedCircIn.toFixed(1)}" around · {spec.wornHeightIn.toFixed(1)}" tall
-        </span>
-        <span>
-          <i className="lg crown" /> crown {spec.crown.rows} rnds · {spec.crown.visualSections}{' '}
-          {spec.type.construction === 'top-down' ? 'increase sections' : 'decrease sections'}
-        </span>
       </div>
     </div>
   );

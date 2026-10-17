@@ -156,8 +156,8 @@ export function ChartEditor() {
         <div>
           <h2>Your chart</h2>
           <p className="muted">
-            {chart.w} sts × {chart.h} rounds ·{' '}
-            {s.placement === 'repeat' ? `${spec.repeats} repeats around ${spec.bodySts} sts` : 'placed once on the front'}
+            Motif {chart.w} sts × {chart.h} rounds · Body {spec.bodySts} sts × {spec.bodyRows} rounds
+            {s.placement === 'repeat' ? ` · ${spec.repeats} repeats around` : ' · once on the front'}
           </p>
         </div>
         <select
@@ -181,6 +181,59 @@ export function ChartEditor() {
           <option value="blank">Blank chart</option>
         </select>
       </header>
+
+      <div className="field motif-placement">
+        <span className="field-label">Where the motif sits</span>
+        <div className="seg seg-wide" role="radiogroup" aria-label="Motif placement">
+          <button
+            className={s.placement === 'repeat' ? 'on' : ''}
+            onClick={() => s.set({ placement: 'repeat' })}
+            role="radio"
+            aria-checked={s.placement === 'repeat'}
+          >
+            Repeat around
+          </button>
+          <button
+            className={s.placement === 'single' ? 'on' : ''}
+            onClick={() => s.set({ placement: 'single' })}
+            role="radio"
+            aria-checked={s.placement === 'single'}
+          >
+            Once on the front
+          </button>
+        </div>
+        {s.placement === 'repeat' && (
+          <>
+            <label className="check">
+              <input type="checkbox" checked={s.tileVertical} onChange={(e) => s.set({ tileVertical: e.target.checked })} />
+              Also repeat up the body (all-over pattern)
+            </label>
+            {spec.goodWidths.length > 0 && (
+              <div className="widths">
+                <span className="muted">Repeat widths that fit this size:</span>
+                {spec.goodWidths.map((w) => (
+                  <button key={w} className={`pill ${w === s.chart.w ? 'on' : ''}`} onClick={() => s.resize(w, s.chart.h)}>
+                    {w}
+                  </button>
+                ))}
+              </div>
+            )}
+          </>
+        )}
+        {!(s.placement === 'repeat' && s.tileVertical) && (
+          <label className="slider">
+            <span>Height on the body</span>
+            <input
+              type="range"
+              min={0}
+              max={1}
+              step={0.01}
+              value={s.verticalPos}
+              onChange={(e) => s.set({ verticalPos: +e.target.value })}
+            />
+          </label>
+        )}
+      </div>
 
       <div className="toolbar">
         <div className="seg" role="group" aria-label="Tool">

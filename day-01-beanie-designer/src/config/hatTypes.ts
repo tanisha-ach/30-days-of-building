@@ -80,7 +80,7 @@ export interface HatType {
 export const HAT_TYPES: HatType[] = [
   {
     id: 'plain-rib',
-    name: 'Plain hat with rib',
+    name: 'Plain with ribbed edge',
     tagline: 'Short k3, p3 rib, stockinette body and a quick 6-wedge crown, worked bottom-up.',
     source: {
       title: 'Purl Soho — Super Soft Merino Hats for Everyone',
@@ -108,7 +108,7 @@ export const HAT_TYPES: HatType[] = [
   },
   {
     id: 'plain-no-rib',
-    name: 'Plain hat, no rib',
+    name: 'Plain with rolled edge',
     tagline: 'Knit top-down from a 6-wedge crown; the stockinette edge rolls.',
     source: {
       title: 'Purl Soho — Essential Hat, Mitten + Hand Warmer Set',
@@ -132,7 +132,7 @@ export const HAT_TYPES: HatType[] = [
   },
   {
     id: 'short-rib',
-    name: 'Short hat with rib',
+    name: 'Short with cuff',
     tagline: 'A shallow hat with a hemmed, double-layer slip-stitch rib cuff.',
     source: {
       title: 'Purl Soho — Classic Hat + Mittens in Wigeon',
@@ -156,7 +156,7 @@ export const HAT_TYPES: HatType[] = [
   },
   {
     id: 'cuffed',
-    name: 'Hat with cuff',
+    name: 'Long slouchy with cuff',
     tagline: 'Tall p2, k2 ribbed brim folded up into a cuff; 4-section crown.',
     source: {
       title: 'Purl Soho — Giving Hat',
