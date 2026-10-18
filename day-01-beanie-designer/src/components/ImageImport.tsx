@@ -68,8 +68,8 @@ export function ImageImport() {
     <section className="card">
       <header className="card-head">
         <div>
-          <h2>Chart from a picture</h2>
-          <p className="muted">Downsampled to stitches and reduced to a few colours.</p>
+          <h2>From a picture</h2>
+          <p className="muted">We’ll turn it into stitches and a handful of colours.</p>
         </div>
       </header>
       {!img ? (

@@ -34,10 +34,10 @@ export function PatternDialog({ onClose }: { onClose: () => void }) {
 
   return (
     <div className="scrim" onClick={onClose}>
-      <div className="dialog" role="dialog" aria-modal aria-label="Written pattern" onClick={(e) => e.stopPropagation()}>
+      <div className="dialog" role="dialog" aria-modal aria-label="Your pattern" onClick={(e) => e.stopPropagation()}>
         <header className="dialog-head">
           <div>
-            <p className="eyebrow">Written pattern</p>
+            <p className="eyebrow">Your pattern</p>
             <h2>{sections[0].title}</h2>
           </div>
           <div className="row-actions">
@@ -60,7 +60,7 @@ export function PatternDialog({ onClose }: { onClose: () => void }) {
                 )
               }
             >
-              <Icon name="download" /> .txt
+              <Icon name="download" /> Save as text
             </button>
             <button className="icon-btn" onClick={onClose} aria-label="Close">
               <Icon name="close" />

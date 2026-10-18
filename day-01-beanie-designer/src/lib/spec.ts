@@ -72,7 +72,11 @@ export function computeSpec(input: DesignInput): HatSpec {
   const brimSts = type.construction === 'top-down' ? bodySts : nearest(bodySts, type.brim.rib.length);
   const crownSts = nearest(bodySts, cm.mult, cm.rem, cm.mult + cm.rem);
   const crown = planCrown(type.crown, crownSts, stsPerIn);
-  const crownIn = crown.rows / rowsPerIn;
+  // When the pattern gives the body length, the crown takes up the rest of its stated height.
+  const crownIn =
+    dims.bodyToIn !== undefined
+      ? Math.max((crown.rows / rowsPerIn) * 0.75, dims.heightIn - dims.bodyToIn)
+      : crown.rows / rowsPerIn;
 
   let brimRows = 0;
   let brimBandIn = 0;
@@ -99,7 +103,10 @@ export function computeSpec(input: DesignInput): HatSpec {
 
   // Body = everything between the brim band and the crown, in knitted length.
   const rollIn = type.brim.kind === 'rolled' ? (type.brim.rollIn ?? 0.5) : 0;
-  const bodyIn = Math.max(0.5, dims.heightIn + rollIn - brimBandIn - foldIn - crownIn);
+  const bodyIn = Math.max(
+    0.5,
+    dims.bodyToIn !== undefined ? dims.bodyToIn - brimBandIn - foldIn : dims.heightIn + rollIn - brimBandIn - foldIn - crownIn,
+  );
   const bodyRows = Math.max(2, Math.round(bodyIn * rowsPerIn));
   const wornHeightIn = dims.heightIn - foldIn;
 

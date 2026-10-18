@@ -64,16 +64,56 @@ export function floodFill(c: Chart, x: number, y: number, color: number): Chart 
 
 /** Longest run of one colour in any chart row — long floats need catching. */
 export function longestFloat(c: Chart): number {
-  let best = 0;
+  return floatCatchHints(c).reduce((best, h) => Math.max(best, h.length), 0);
+}
+
+export interface FloatCatchHint {
+  /** Knitter's round number (1 = bottom of the chart). */
+  round: number;
+  /** Length of the longest unbroken colour run on that round. */
+  length: number;
+  /** Suggested catch interval (sts). */
+  every: number;
+}
+
+/**
+ * Rounds where a colour runs longer than `maxFloat` sts. Knitters should twist
+ * (catch) the unused yarn every `every` stitches so the float doesn't snag.
+ */
+export function floatCatchHints(c: Chart, maxFloat = 5): FloatCatchHint[] {
+  const hints: FloatCatchHint[] = [];
   for (let y = 0; y < c.h; y++) {
     const row = c.cells.slice(y * c.w, y * c.w + c.w);
     if (new Set(row).size < 2) continue;
-    // Rows wrap around the hat, so scan the row twice.
+    let best = 0;
     let run = 1;
     for (let x = 1; x < c.w * 2; x++) {
       run = row[x % c.w] === row[(x - 1) % c.w] ? run + 1 : 1;
       best = Math.max(best, Math.min(run, c.w));
     }
+    if (best > maxFloat) {
+      hints.push({
+        round: c.h - y,
+        length: best,
+        every: best > 12 ? 4 : 5,
+      });
+    }
   }
-  return best;
+  return hints.sort((a, b) => b.length - a.length);
+}
+
+/** Up to `max` repeat widths that divide the hat evenly, preferring the current width. */
+export function pickRepeatWidths(all: number[], current: number, max = 5): number[] {
+  if (all.length <= max) return all;
+  const sorted = [...all].sort((a, b) => a - b);
+  const picked = new Set<number>();
+  for (let i = 0; i < max; i++) {
+    picked.add(sorted[Math.round((i / (max - 1)) * (sorted.length - 1))]);
+  }
+  if (all.includes(current) && !picked.has(current)) {
+    const farthest = [...picked].sort((a, b) => Math.abs(b - current) - Math.abs(a - current))[0];
+    picked.delete(farthest);
+    picked.add(current);
+  }
+  return [...picked].sort((a, b) => a - b);
 }
