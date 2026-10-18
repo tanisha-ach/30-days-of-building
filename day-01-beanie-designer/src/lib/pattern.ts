@@ -1,5 +1,5 @@
 import type { Chart } from './chart';
-import { longestFloat } from './chart';
+import { floatCatchHints } from './chart';
 import type { HatSpec, Placement } from './spec';
 
 export interface PatternSection {
@@ -66,8 +66,15 @@ function chartLines(spec: HatSpec, o: PatternOptions, topDown: boolean): string[
     );
     lines.push(`Continue working ${rangeTxt} of the Chart between the markers, with MC outside them.${readTxt}`);
   }
-  const float = longestFloat(chart);
-  if (float > 5) lines.push(`Note: the longest float is ${float} sts — catch floats every 4–5 sts.`);
+  const floats = floatCatchHints(chart);
+  if (floats.length) {
+    const top = floats.slice(0, 5);
+    lines.push(
+      `Catch long floats so they don't snag — twist the unused yarn every few stitches on these rounds: ${top
+        .map((h) => `round ${h.round} (every ${h.every} sts)`)
+        .join('; ')}${floats.length > 5 ? `; and ${floats.length - 5} more` : ''}.`,
+    );
+  }
   return lines;
 }
 
@@ -119,7 +126,7 @@ export function writePattern(spec: HatSpec, o: PatternOptions): PatternSection[]
         `With scrap yarn, use a Provisional Cast On to cast on ${spec.brimSts} sts. Place marker and join to work in the round.`,
       );
       brim.push(`Change to ${bc}. Round 1: Knit.`);
-      brim.push(`Round 2: ${ribRound(type.brim.rib).replace('slip 1', 'slip 1 purlwise wyib')}`);
+      brim.push(`Round 2: ${ribRound(type.brim.rib).replace('slip 1', 'slip 1 purlwise with yarn in back')}`);
       brim.push(
         `Repeat Rounds 1 and 2 until the piece measures ${inch(dims.brimIn * 2)} from the cast-on edge (about ${spec.brimRows} rounds), ending with Round 2.`,
       );
