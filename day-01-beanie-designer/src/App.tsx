@@ -76,28 +76,30 @@ export default function App() {
         <div className="right">
           <div className="viewer-card">
             <HatPicker locked={showPattern} />
-            <div className="viewer-tabs" role="tablist" aria-label="Preview">
-              <button
-                type="button"
-                role="tab"
-                className={viewTab === 'chart' ? 'on' : ''}
-                aria-selected={viewTab === 'chart'}
-                onClick={() => setViewTab('chart')}
-              >
-                Chart
-              </button>
-              <button
-                type="button"
-                role="tab"
-                className={viewTab === 'model' ? 'on' : ''}
-                aria-selected={viewTab === 'model'}
-                onClick={() => setViewTab('model')}
-              >
-                3D model
-              </button>
-            </div>
+            {showPattern && (
+              <div className="viewer-tabs" role="tablist" aria-label="Preview">
+                <button
+                  type="button"
+                  role="tab"
+                  className={viewTab === 'chart' ? 'on' : ''}
+                  aria-selected={viewTab === 'chart'}
+                  onClick={() => setViewTab('chart')}
+                >
+                  Chart
+                </button>
+                <button
+                  type="button"
+                  role="tab"
+                  className={viewTab === 'model' ? 'on' : ''}
+                  aria-selected={viewTab === 'model'}
+                  onClick={() => setViewTab('model')}
+                >
+                  3D model
+                </button>
+              </div>
+            )}
             <div className="viewer-stage">
-              {viewTab === 'chart' ? (
+              {showPattern && viewTab === 'chart' ? (
                 <ChartStage />
               ) : (
                 <Suspense fallback={<div className="viewer loading">Warming up the needles…</div>}>
