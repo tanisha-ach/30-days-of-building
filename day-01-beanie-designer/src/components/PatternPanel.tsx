@@ -3,6 +3,7 @@ import { download } from '../lib/chartExport';
 import type { HatSpec } from '../lib/spec';
 import { videoForTechnique } from '../lib/techniqueVideos';
 import { Icon } from './Icon';
+import { Button } from './ui/Button';
 import { usePatternText } from './PatternDialog';
 
 const TERM_KEY: { term: string; meaning: string }[] = [
@@ -105,12 +106,11 @@ export function PatternPanel({ onEdit }: { onEdit: () => void }) {
           <h2>{intro?.title ?? 'Pattern'}</h2>
         </div>
         <div className="row-actions">
-          <button type="button" className="btn ghost" onClick={onEdit}>
+          <Button variant="ghost" onClick={onEdit}>
             <Icon name="pencil" /> Edit chart
-          </button>
-          <button
-            type="button"
-            className="btn ghost"
+          </Button>
+          <Button
+            variant="ghost"
             onClick={() => {
               navigator.clipboard?.writeText(expandAbbreviations(text));
               setCopied(true);
@@ -118,10 +118,9 @@ export function PatternPanel({ onEdit }: { onEdit: () => void }) {
             }}
           >
             <Icon name="copy" /> {copied ? 'Copied' : 'Copy'}
-          </button>
-          <button
-            type="button"
-            className="btn primary"
+          </Button>
+          <Button
+            variant="primary"
             onClick={() =>
               download(
                 URL.createObjectURL(new Blob([expandAbbreviations(text)], { type: 'text/plain' })),
@@ -130,7 +129,7 @@ export function PatternPanel({ onEdit }: { onEdit: () => void }) {
             }
           >
             <Icon name="download" /> Save
-          </button>
+          </Button>
         </div>
       </header>
 
@@ -192,7 +191,7 @@ export function PatternPanel({ onEdit }: { onEdit: () => void }) {
       <section className={`pattern-block pattern-term-key ${keyOpen ? 'open' : ''}`}>
         <button type="button" className="collapse-head pattern-key-toggle" aria-expanded={keyOpen} onClick={() => setKeyOpen((v) => !v)}>
           <span className="collapse-title">
-            <span className="field-label" style={{ marginBottom: 0 }}>
+            <span className="field-label flush">
               Knitting terms
             </span>
             {!keyOpen && <span className="collapse-summary">sts, MC, k2tog, and more</span>}

@@ -1,0 +1,220 @@
+/**
+ * Layer 2 — semantic tokens (what components use).
+ * Exact prototype values for visual parity; dark theme remaps this layer only.
+ */
+:root {
+  /* —— Surfaces (shared sand ground) —— */
+  --color-bg: #c9a582;
+  --color-bg-accent: color-mix(in oklch, #5c7457 28%, #c9a582);
+  --color-bg-accent-soft: color-mix(in oklch, #5c7457 14%, #c9a582);
+  --color-surface: #f1e8df;
+  --color-surface-raised: #f0e6de;
+  --color-surface-muted: #e8d4bf;
+  --color-surface-subtle: #c9a582;
+  --color-surface-warm: #c9a582;
+  --color-overlay: color-mix(in oklch, var(--color-neutral-seed) 42%, transparent);
+  --color-topbar: #f4e5d7;
+  --color-ghost-fill: color-mix(in oklch, var(--color-surface-raised) 85%, transparent);
+  --color-seg-hover: color-mix(in oklch, var(--color-white) 70%, transparent);
+  --color-overlay-select: color-mix(in oklch, var(--color-white) 92%, transparent);
+
+  /* —— Text (espresso) —— */
+  --color-text: #2d1605;
+  --color-text-muted: #5c4a3a;
+  --color-text-subtle: #541e0a;
+  --color-text-inverse: #f3ebe0;
+  --color-link: #5c7457;
+  --color-text-secondary: #541e0a;
+
+  /* —— Borders —— */
+  --color-border: #b8956e;
+  --color-border-strong: #5c7457;
+  --color-border-muted: color-mix(in oklch, var(--color-border) 90%, transparent);
+  --color-border-chip: color-mix(in oklch, var(--color-black) 12%, transparent);
+  --color-focus-ring: #5c7457;
+
+  /* —— Actions: primary (burgundy brand) —— */
+  --color-primary: #510001;
+  --color-primary-hover: color-mix(in oklch, #510001 82%, black);
+  --color-primary-active: color-mix(in oklch, var(--color-primary) 70%, black);
+  --color-on-primary: #fffaf4;
+  --color-primary-subtle: color-mix(in oklch, #510001 12%, #fffaf4);
+  --color-primary-muted: color-mix(in oklch, #510001 45%, #c9a582);
+  --color-primary-soft: color-mix(in oklch, var(--color-primary) 22%, transparent);
+  --color-primary-outline: color-mix(in oklch, var(--color-primary) 45%, transparent);
+  --color-primary-glow: color-mix(in oklch, var(--color-brand-200) 35%, transparent);
+
+  /* —— Actions: secondary (espresso) —— */
+  --color-secondary: #2d1605;
+  --color-secondary-hover: color-mix(in oklch, var(--color-secondary) 88%, black);
+  --color-secondary-active: color-mix(in oklch, var(--color-secondary) 75%, black);
+  --color-on-secondary: #fffaf4;
+  --color-secondary-subtle: #c9a582;
+
+  /* —— Actions: danger (shares brand burgundy) —— */
+  --color-danger: #510001;
+  --color-danger-hover: color-mix(in oklch, var(--color-danger) 85%, black);
+  --color-danger-active: color-mix(in oklch, var(--color-danger) 70%, black);
+  --color-on-danger: #fffaf4;
+  --color-danger-subtle: color-mix(in oklch, #510001 10%, #fffaf4);
+  --color-danger-muted: #8a4a42;
+
+  /* —— Feedback (sage accent as success) —— */
+  --color-success: var(--color-success-500);
+  --color-success-subtle: var(--color-success-50);
+  --color-warning: var(--color-warning-500);
+  --color-warning-subtle: var(--color-warning-50);
+  --color-info: var(--color-info-500);
+  --color-info-subtle: var(--color-info-50);
+
+  /* —— Decorative / glyph (sage accent) —— */
+  --color-glyph-fill: #c9a582;
+  --color-glyph-stroke: #5c7457;
+  --color-glyph-fill-on: #5c7457;
+  --color-glyph-brim: #b8956e;
+  --color-glyph-brim-on: #4a5e46;
+  --color-toggle-track: #b8956e;
+  --color-chart-label: #5c4a3a;
+  --color-chart-grid: color-mix(in oklch, var(--color-neutral-seed) 14%, transparent);
+  --color-chart-grid-strong: color-mix(in oklch, var(--color-neutral-seed) 38%, transparent);
+  --color-chart-mirror: color-mix(in oklch, var(--color-danger-seed) 80%, transparent);
+  --color-chart-hover: color-mix(in oklch, var(--color-white) 35%, transparent);
+
+  /* —— Elevation —— */
+  --elevation-sm: var(--shadow-sm);
+  --elevation-md: var(--shadow-md);
+  --elevation-lg: var(--shadow-lg);
+  --elevation-brand-sm: var(--shadow-brand-sm);
+  --elevation-brand-md: var(--shadow-brand-md);
+  --elevation-brand-btn: var(--shadow-brand-btn);
+  --elevation-inset: var(--shadow-inset-chip);
+  --elevation-focus: var(--shadow-focus-ring);
+  --elevation-focus-soft: var(--shadow-focus-soft);
+
+  /* —— Type semantic —— */
+  --font-family-body: var(--font-sans);
+  --font-family-display: var(--font-display);
+  --font-family-mono: var(--font-mono);
+
+  /* —— Component aliases —— */
+  --button-radius: var(--radius-full);
+  --button-padding-x: 8px;
+  --button-padding-y: var(--space-2-25);
+  --button-padding-x-sm: var(--space-3);
+  --button-padding-y-sm: calc(var(--space-unit) * 1.5);
+  --button-font-size: var(--font-size-ui);
+  --button-font-size-sm: var(--font-size-body);
+  --button-gap: calc(var(--space-unit) * 1.75);
+  --button-border-width: var(--border-width-emphasis);
+
+  --icon-button-radius: var(--radius-md);
+  --icon-button-padding: var(--space-2);
+
+  --input-radius: var(--radius-md);
+  --input-padding-x: var(--space-3);
+  --input-padding-y: var(--space-2);
+  --input-font-size: var(--font-size-body-md);
+  --input-border-width: var(--border-width);
+  --input-height: calc(var(--space-unit) * 9.5);
+
+  --card-radius: var(--radius-xl);
+  --card-padding: 16px;
+  --card-padding-bottom: var(--space-6);
+  --card-border-width: var(--border-width-emphasis);
+  --card-shadow: var(--elevation-md);
+
+  --modal-radius: var(--radius-3xl);
+  --modal-padding-x: var(--space-7);
+  --modal-padding-y: var(--space-5);
+  --modal-shadow: var(--elevation-lg);
+  --modal-max-width: var(--layout-modal-max);
+
+  --seg-radius: var(--radius-lg);
+  --seg-padding: var(--space-1);
+  --seg-gap: calc(var(--space-unit) * 0.75);
+  --seg-item-radius: var(--radius-md);
+  --seg-item-padding-x: calc(var(--space-unit) * 2.5);
+  --seg-item-padding-y: var(--space-2);
+
+  --chip-radius: var(--radius-md);
+  --chip-size: var(--size-chip);
+  --pill-radius: var(--radius-full);
+  --pill-padding-x: calc(var(--space-unit) * 2.25);
+  --pill-padding-y: calc(var(--space-unit) * 0.75);
+
+  --toggle-radius: var(--radius-full);
+  --toggle-width: var(--size-toggle-w);
+  --toggle-height: var(--size-toggle-h);
+  --toggle-knob-size: var(--size-toggle-knob);
+
+  --type-card-radius: var(--radius-lg);
+  --type-card-padding-x: var(--space-3-5);
+  --type-card-padding-y: var(--space-3);
+  --type-card-gap: calc(var(--space-unit) * 2.5);
+
+  --note-radius: calc(var(--radius-base) * 3.5);
+  --drop-radius: calc(var(--radius-base) * 4.5);
+  --viewer-radius: var(--radius-2xl);
+
+  --focus-ring-width: var(--border-width-strong);
+  --focus-ring-offset: var(--space-0-5);
+
+  /* Chart track (avoid collision with border color token names) */
+  --width-track-thickness: var(--size-width-track);
+  --width-dot-size: var(--size-width-dot);
+}
+
+/* —— Dark theme: remap layer 2 only —— */
+[data-theme='dark'] {
+  --color-bg: #2d1605;
+  --color-bg-accent: color-mix(in oklch, #5c7457 28%, #2d1605);
+  --color-bg-accent-soft: color-mix(in oklch, #5c7457 14%, #2d1605);
+  --color-surface: #3a2212;
+  --color-surface-raised: #452818;
+  --color-surface-muted: #541e0a;
+  --color-surface-subtle: #4a2814;
+  --color-surface-warm: #3f2410;
+  --color-overlay: color-mix(in oklch, var(--color-black) 55%, transparent);
+  --color-topbar: color-mix(in oklch, var(--color-bg) 88%, transparent);
+  --color-ghost-fill: color-mix(in oklch, var(--color-surface-raised) 70%, transparent);
+  --color-seg-hover: color-mix(in oklch, var(--color-white) 8%, transparent);
+  --color-overlay-select: color-mix(in oklch, var(--color-surface) 92%, transparent);
+
+  --color-text: #f3ebe0;
+  --color-text-muted: #c9a582;
+  --color-text-subtle: #e8d4bc;
+  --color-text-inverse: #2d1605;
+  --color-link: #8fa889;
+  --color-text-secondary: #e8d4bc;
+
+  --color-border: #6b4428;
+  --color-border-strong: #5c7457;
+  --color-border-muted: color-mix(in oklch, var(--color-border) 80%, transparent);
+  --color-border-chip: color-mix(in oklch, var(--color-white) 14%, transparent);
+  --color-focus-ring: #8fa889;
+
+  --color-primary: #a84a52;
+  --color-primary-hover: #c96a70;
+  --color-primary-active: #510001;
+  --color-on-primary: #fffaf4;
+  --color-primary-subtle: color-mix(in oklch, var(--color-brand-seed) 28%, #3a2212);
+  --color-primary-muted: #7a3038;
+
+  --color-secondary: #f3ebe0;
+  --color-secondary-hover: #ffffff;
+  --color-secondary-active: #e8d4bc;
+  --color-on-secondary: #2d1605;
+  --color-secondary-subtle: #4a2814;
+
+  --color-danger: #c97a72;
+  --color-danger-subtle: color-mix(in oklch, var(--color-danger-seed) 30%, #3a2212);
+  --color-danger-muted: #a85a52;
+
+  --color-glyph-fill: #452818;
+  --color-glyph-stroke: #8fa889;
+  --color-glyph-fill-on: #5c7457;
+  --color-glyph-brim: #6b4428;
+  --color-glyph-brim-on: #8fa889;
+  --color-toggle-track: #6b4428;
+  --color-chart-label: #c9a582;
+}

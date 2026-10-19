@@ -1,9 +1,28 @@
 import type { Chart } from './chart';
 import { colorName } from './pattern';
+import { cssToken } from './cssToken';
 import type { HatSpec } from './spec';
+
+function exportColors() {
+  return {
+    paper: cssToken('--color-surface-raised'),
+    ink: cssToken('--color-text'),
+    muted: cssToken('--color-text-muted'),
+    soft: cssToken('--color-primary-subtle'),
+    grid: cssToken('--color-chart-grid-strong'),
+    fontDisplay: cssToken('--font-family-display'),
+    fontBody: cssToken('--font-family-body'),
+    sizeTitle: cssToken('--font-size-title-lg'),
+    sizeBody: cssToken('--font-size-body'),
+    sizeCaption: cssToken('--font-size-caption'),
+    sizeLabel: cssToken('--font-size-body-sm'),
+    sizeKey: cssToken('--font-size-ui'),
+  };
+}
 
 /** A printable chart in the style of a pattern page: numbered grid plus key. */
 export function renderChartPng(chart: Chart, palette: string[], spec: HatSpec): string {
+  const t = exportColors();
   const cell = Math.max(14, Math.min(28, Math.floor(900 / Math.max(chart.w, chart.h))));
   const pad = 48;
   const gridW = chart.w * cell;
@@ -17,14 +36,14 @@ export function renderChartPng(chart: Chart, palette: string[], spec: HatSpec): 
   c.height = H * 2;
   const ctx = c.getContext('2d')!;
   ctx.scale(2, 2);
-  ctx.fillStyle = '#fffbfc';
+  ctx.fillStyle = t.paper;
   ctx.fillRect(0, 0, W, H);
 
-  ctx.fillStyle = '#2a2224';
-  ctx.font = '700 22px Quicksand, Nunito, system-ui, sans-serif';
+  ctx.fillStyle = t.ink;
+  ctx.font = `700 ${t.sizeTitle} ${t.fontDisplay}`;
   ctx.fillText(`${spec.size.name} chart — ${spec.type.name}`, pad, pad + 4);
-  ctx.font = '13px Nunito, system-ui, sans-serif';
-  ctx.fillStyle = '#8a7479';
+  ctx.font = `${t.sizeBody} ${t.fontBody}`;
+  ctx.fillStyle = t.muted;
   const repeatTxt = spec.repeats > 1 ? `${spec.repeats} repeats around` : 'worked once, centred on the front';
   ctx.fillText(`${chart.w} sts × ${chart.h} rounds · ${repeatTxt} · ${spec.bodySts} sts in the body`, pad, pad + 26);
 
@@ -35,7 +54,7 @@ export function renderChartPng(chart: Chart, palette: string[], spec: HatSpec): 
       ctx.fillStyle = palette[chart.cells[y * chart.w + x]] ?? palette[0];
       ctx.fillRect(gx + x * cell, gy + y * cell, cell, cell);
     }
-  ctx.strokeStyle = 'rgba(40,30,25,0.35)';
+  ctx.strokeStyle = t.grid;
   ctx.lineWidth = 0.6;
   for (let x = 0; x <= chart.w; x++) {
     ctx.lineWidth = x % 5 === 0 || x === chart.w ? 1.1 : 0.5;
@@ -52,8 +71,8 @@ export function renderChartPng(chart: Chart, palette: string[], spec: HatSpec): 
     ctx.stroke();
   }
 
-  ctx.fillStyle = '#8a7479';
-  ctx.font = `${Math.min(11, cell * 0.55)}px Nunito, system-ui, sans-serif`;
+  ctx.fillStyle = t.muted;
+  ctx.font = `${Math.min(parseFloat(t.sizeCaption) || 11, cell * 0.55)}px ${t.fontBody}`;
   ctx.textBaseline = 'middle';
   for (let y = 0; y < chart.h; y++) ctx.fillText(String(chart.h - y), gx + gridW + 6, gy + y * cell + cell / 2);
   ctx.textAlign = 'center';
@@ -62,22 +81,22 @@ export function renderChartPng(chart: Chart, palette: string[], spec: HatSpec): 
   const kx = gx + gridW + 48;
   let ky = gy;
   ctx.textAlign = 'left';
-  ctx.fillStyle = '#2a2224';
-  ctx.font = '700 15px Quicksand, Nunito, system-ui, sans-serif';
+  ctx.fillStyle = t.ink;
+  ctx.font = `700 ${t.sizeKey} ${t.fontDisplay}`;
   ctx.fillText('KEY', kx, ky + 6);
   ky += 28;
-  ctx.font = '13px Nunito, system-ui, sans-serif';
+  ctx.font = `${t.sizeBody} ${t.fontBody}`;
   palette.forEach((col, i) => {
     ctx.fillStyle = col;
     ctx.fillRect(kx, ky, 18, 18);
-    ctx.strokeStyle = 'rgba(40,30,25,0.5)';
+    ctx.strokeStyle = t.grid;
     ctx.strokeRect(kx + 0.5, ky + 0.5, 17, 17);
-    ctx.fillStyle = '#2b2522';
+    ctx.fillStyle = t.ink;
     ctx.fillText(`${colorName(i)}  ${col.toUpperCase()}`, kx + 28, ky + 9);
     ky += 28;
   });
   ky += 12;
-  ctx.fillStyle = '#8a7479';
+  ctx.fillStyle = t.muted;
   const notes = [
     'Read every round right to left.',
     spec.type.construction === 'top-down' ? 'Top-down: work from the top row down.' : 'Work from round 1 (bottom) up.',
@@ -87,11 +106,12 @@ export function renderChartPng(chart: Chart, palette: string[], spec: HatSpec): 
     ctx.fillText(n, kx, ky);
     ky += 20;
   }
-  drawCrownSection(ctx, spec, kx, ky + 12, keyW + 10, H - ky - pad);
+  drawCrownSection(ctx, spec, kx, ky + 12, keyW + 10, H - ky - pad, t);
   return c.toDataURL('image/png');
 }
 
 type Mark = '/' | '\\' | '+';
+type ExportTone = ReturnType<typeof exportColors>;
 
 /** Stitch widths and shaping symbols for one crown section, listed bottom (body side) to top. */
 export function crownSectionRows(spec: HatSpec): { w: number; marks: [number, Mark][] }[] {
@@ -137,27 +157,35 @@ export function crownSectionRows(spec: HatSpec): { w: number; marks: [number, Ma
   return rows;
 }
 
-function drawCrownSection(ctx: CanvasRenderingContext2D, spec: HatSpec, x: number, y: number, maxW: number, maxH: number) {
+function drawCrownSection(
+  ctx: CanvasRenderingContext2D,
+  spec: HatSpec,
+  x: number,
+  y: number,
+  maxW: number,
+  maxH: number,
+  t: ExportTone,
+) {
   const rows = crownSectionRows(spec);
   const widest = Math.max(...rows.map((r) => r.w));
   const cell = Math.max(4, Math.min(16, Math.floor((maxW - 40) / widest), Math.floor((maxH - 70) / rows.length)));
-  ctx.fillStyle = '#2a2224';
-  ctx.font = '700 15px Quicksand, Nunito, system-ui, sans-serif';
+  ctx.fillStyle = t.ink;
+  ctx.font = `700 ${t.sizeKey} ${t.fontDisplay}`;
   ctx.textAlign = 'left';
   ctx.fillText(`CROWN — 1 of ${spec.crown.visualSections} sections`, x, y + 4);
   const top = y + 22;
-  const mc = '#fce8ee';
+  const mc = t.soft;
   rows.forEach((r, i) => {
     const ry = top + (rows.length - 1 - i) * cell;
     const ox = x + ((widest - r.w) * cell) / 2;
     for (let c = 0; c < r.w; c++) {
       ctx.fillStyle = mc;
       ctx.fillRect(ox + c * cell, ry, cell, cell);
-      ctx.strokeStyle = 'rgba(40,30,25,0.3)';
+      ctx.strokeStyle = t.grid;
       ctx.lineWidth = 0.5;
       ctx.strokeRect(ox + c * cell, ry, cell, cell);
     }
-    ctx.strokeStyle = '#2b2522';
+    ctx.strokeStyle = t.ink;
     ctx.lineWidth = 1.2;
     for (const [c, m] of r.marks) {
       const cx = ox + c * cell;
@@ -178,8 +206,8 @@ function drawCrownSection(ctx: CanvasRenderingContext2D, spec: HatSpec, x: numbe
     }
   });
   const ly = top + rows.length * cell + 18;
-  ctx.font = '12px Nunito, system-ui, sans-serif';
-  ctx.fillStyle = '#6b625c';
+  ctx.font = `${t.sizeLabel} ${t.fontBody}`;
+  ctx.fillStyle = t.muted;
   const legend =
     spec.type.crown.kind === 'top-down'
       ? '+ increase (kfb, RLI or LLI)'
@@ -189,11 +217,9 @@ function drawCrownSection(ctx: CanvasRenderingContext2D, spec: HatSpec, x: numbe
   ctx.fillText(legend, x, ly);
 }
 
-export function download(href: string, filename: string) {
+export function download(href: string, name: string) {
   const a = document.createElement('a');
   a.href = href;
-  a.download = filename;
-  document.body.appendChild(a);
+  a.download = name;
   a.click();
-  a.remove();
 }

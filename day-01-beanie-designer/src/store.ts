@@ -7,7 +7,7 @@ import type { Placement } from './lib/spec';
 
 export type Tool = 'paint' | 'fill' | 'pick';
 
-export const DEFAULT_PALETTE = ['#f3ebdd', '#2f3b52', '#b5523b', '#e2b04a', '#6e8b74', '#8a5a83'];
+export const DEFAULT_PALETTE = ['#c9a582', '#2d1605', '#510001', '#5c7457', '#541e0a', '#84532a'];
 export const MAX_COLORS = 6;
 
 interface DesignState {

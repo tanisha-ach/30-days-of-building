@@ -6,6 +6,7 @@ import { HatPicker } from './components/HatPicker';
 import { Icon } from './components/Icon';
 import { PatternPanel } from './components/PatternPanel';
 import { usePatternText } from './components/PatternDialog';
+import { Button } from './components/ui/Button';
 import { download, renderChartPng } from './lib/chartExport';
 import { useDesign } from './store';
 
@@ -53,15 +54,15 @@ export default function App() {
           </div>
         </div>
         <div className="row-actions">
-          <button
-            className="btn ghost"
+          <Button
+            variant="ghost"
             onClick={() => download(renderChartPng(chart, palette, spec), `${spec.type.id}-${spec.size.id}-chart.png`)}
           >
             <Icon name="download" /> Save chart
-          </button>
-          <button className="btn primary" onClick={shareLink}>
+          </Button>
+          <Button variant="primary" onClick={shareLink}>
             <Icon name="external" /> {shareMsg || 'Share link'}
-          </button>
+          </Button>
         </div>
       </header>
 

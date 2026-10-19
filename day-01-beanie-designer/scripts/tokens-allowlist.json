@@ -1,0 +1,52 @@
+[
+  {
+    "file": "src/styles.css",
+    "pattern": "@media \\(max-width: (520|560|1000)px\\)",
+    "reason": "CSS media queries cannot use custom properties for breakpoints in a portable way"
+  },
+  {
+    "file": "src/store.ts",
+    "pattern": "DEFAULT_PALETTE|#f3ebdd|#2f3b52|#b5523b|#e2b04a|#6e8b74|#8a5a83|#999999",
+    "reason": "User-editable yarn chart palette — domain data, not UI chrome"
+  },
+  {
+    "file": "src/lib/imageToChart.ts",
+    "pattern": "#fff|#f3ebdd|#2f3b52",
+    "reason": "Image sampling canvas clear + default quantize palette fallback for chart cells"
+  },
+  {
+    "file": "src/lib/texture.ts",
+    "pattern": "#[0-9a-fA-F]{3,6}|rgba?\\(",
+    "reason": "Procedural 3D yarn shading gradients derived from stitch colour"
+  },
+  {
+    "file": "src/components/HatViewer.tsx",
+    "pattern": "#ffffff|#f4f7ff|#f3f6ff|#fff6ee|#777|rgba\\(",
+    "reason": "Three.js scene lights, lightformers, sheen, and fuzz texture — lighting domain"
+  },
+  {
+    "file": "src/components/ImageImport.tsx",
+    "pattern": "#000",
+    "reason": "Legacy unused import preview canvas fallback (same path as ImageMotifDialog, allowlisted until removed)"
+  },
+  {
+    "file": "src/lib/chartExport.ts",
+    "pattern": "\\d+px",
+    "reason": "Canvas font size strings are composed from CSS tokens at runtime; remaining numeric layout math is stitch-cell geometry not UI spacing"
+  },
+  {
+    "file": "src/components/ChartEditor.tsx",
+    "pattern": "\\d+px",
+    "reason": "Canvas font size is composed from --font-size-2xs token at runtime"
+  },
+  {
+    "file": "src/pages/StyleGuide.tsx",
+    "pattern": "marginTop: 'var\\(--space-4\\)'",
+    "reason": "Inline style uses token reference only (no raw px)"
+  },
+  {
+    "file": "src/design-mode/*",
+    "pattern": ".",
+    "reason": "Temporary Design Mode tooling (skipped by directory in tokens-check); removed with the folder"
+  }
+]

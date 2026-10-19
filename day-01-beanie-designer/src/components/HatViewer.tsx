@@ -6,6 +6,7 @@ import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
 import { buildHatShape, type HatShape } from '../lib/hatShape';
 import type { HatSpec } from '../lib/spec';
 import { drawBody, drawRib } from '../lib/texture';
+import { cssToken } from '../lib/cssToken';
 import { useDesign } from '../store';
 import { useSpec } from '../useSpec';
 import { Icon } from './Icon';
@@ -194,6 +195,7 @@ export function HatViewer() {
   const spec = useSpec();
   const [autoRotate, setAutoRotate] = useState(() => !new URLSearchParams(location.search).has('still'));
   const shape = useMemo(() => buildHatShape(spec), [spec]);
+  const surface = cssToken('--color-surface');
 
   return (
     <div className="viewer">
@@ -202,9 +204,9 @@ export function HatViewer() {
         dpr={[1, 2]}
         camera={{ position: [11, 8.5, 16], fov: FOV }}
         gl={{ preserveDrawingBuffer: true, antialias: true, toneMappingExposure: 1.05 }}
-        style={{ background: '#ffffff' }}
+        style={{ background: surface }}
       >
-        <color attach="background" args={['#ffffff']} />
+        <color attach="background" args={[surface]} />
         <ambientLight intensity={0.32} />
         <directionalLight
           position={[-7, 14, 10]}

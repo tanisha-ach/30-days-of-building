@@ -4,7 +4,10 @@ import { makeChart, pickRepeatWidths, shiftChart } from '../lib/chart';
 import { colorName } from '../lib/pattern';
 import { MAX_COLORS, useDesign, type Tool } from '../store';
 import { useSpec } from '../useSpec';
+import { cssToken } from '../lib/cssToken';
 import { Icon } from './Icon';
+import { ImageMotifDialog } from './ImageMotifDialog';
+import { Button } from './ui/Button';
 
 const LABEL = 22;
 const ZOOM_MIN = 0.5;
@@ -20,6 +23,7 @@ export function ChartEditor({ onGenerate }: { onGenerate?: () => void }) {
   const [activeMotif, setActiveMotif] = useState('');
   const [zoom, setZoom] = useState(1);
   const [placementOpen, setPlacementOpen] = useState(true);
+  const [imageOpen, setImageOpen] = useState(false);
   const painting = useRef(false);
   const panning = useRef(false);
   const panOrigin = useRef({ x: 0, y: 0, left: 0, top: 0 });
@@ -59,27 +63,34 @@ export function ChartEditor({ onGenerate }: { onGenerate?: () => void }) {
         ctx.fillStyle = palette[chart.cells[y * chart.w + x]] ?? palette[0];
         ctx.fillRect(x * cell, y * cell, cell, cell);
       }
+    const grid = cssToken('--color-chart-grid');
+    const gridStrong = cssToken('--color-chart-grid-strong');
+    const hoverFill = cssToken('--color-chart-hover');
+    const mirrorStroke = cssToken('--color-chart-mirror');
+    const labelFill = cssToken('--color-chart-label');
+    const fontBody = cssToken('--font-family-body', 'system-ui, sans-serif');
+    const font2xs = cssToken('--font-size-2xs', '10px');
     if (hover) {
-      ctx.fillStyle = 'rgba(255,255,255,0.35)';
+      ctx.fillStyle = hoverFill;
       ctx.fillRect(hover[0] * cell, hover[1] * cell, cell, cell);
       if (s.mirror) ctx.fillRect((chart.w - 1 - hover[0]) * cell, hover[1] * cell, cell, cell);
     }
     for (let x = 0; x <= chart.w; x++) {
-      ctx.strokeStyle = x % 5 === 0 ? 'rgba(43,37,34,0.38)' : 'rgba(43,37,34,0.14)';
+      ctx.strokeStyle = x % 5 === 0 ? gridStrong : grid;
       ctx.beginPath();
       ctx.moveTo(x * cell + 0.5, 0);
       ctx.lineTo(x * cell + 0.5, chart.h * cell);
       ctx.stroke();
     }
     for (let y = 0; y <= chart.h; y++) {
-      ctx.strokeStyle = (chart.h - y) % 5 === 0 ? 'rgba(43,37,34,0.38)' : 'rgba(43,37,34,0.14)';
+      ctx.strokeStyle = (chart.h - y) % 5 === 0 ? gridStrong : grid;
       ctx.beginPath();
       ctx.moveTo(0, y * cell + 0.5);
       ctx.lineTo(chart.w * cell, y * cell + 0.5);
       ctx.stroke();
     }
     if (s.mirror) {
-      ctx.strokeStyle = 'rgba(181,82,59,0.8)';
+      ctx.strokeStyle = mirrorStroke;
       ctx.setLineDash([4, 4]);
       ctx.beginPath();
       ctx.moveTo((chart.w * cell) / 2, 0);
@@ -87,8 +98,8 @@ export function ChartEditor({ onGenerate }: { onGenerate?: () => void }) {
       ctx.stroke();
       ctx.setLineDash([]);
     }
-    ctx.fillStyle = '#8a7f77';
-    ctx.font = `${Math.min(10, cell * 0.6)}px Nunito, system-ui, sans-serif`;
+    ctx.fillStyle = labelFill;
+    ctx.font = `${Math.min(parseFloat(font2xs) || 10, cell * 0.6)}px ${fontBody}`;
     ctx.textAlign = 'left';
     ctx.textBaseline = 'middle';
     const every = cell < 13 ? 5 : 1;
@@ -292,7 +303,7 @@ export function ChartEditor({ onGenerate }: { onGenerate?: () => void }) {
           onClick={() => setPlacementOpen((v) => !v)}
         >
           <span className="collapse-title">
-            <span className="field-label" style={{ marginBottom: 0 }}>
+            <span className="field-label flush">
               Motif placement
             </span>
             {!placementOpen && (
@@ -306,31 +317,33 @@ export function ChartEditor({ onGenerate }: { onGenerate?: () => void }) {
 
         {placementOpen && (
           <div className="collapse-body">
-            <label className="toggle-row">
-              <span className="field-label" style={{ marginBottom: 0 }}>
-                Repeat pattern around the hat
-              </span>
-              <button
-                type="button"
-                className={`toggle ${s.placement === 'repeat' ? 'on' : ''}`}
-                role="switch"
-                aria-checked={s.placement === 'repeat'}
-                onClick={() => s.set({ placement: s.placement === 'repeat' ? 'single' : 'repeat', tileVertical: false })}
-              >
-                <span className="toggle-knob" />
-                <span className="sr-only">{s.placement === 'repeat' ? 'On' : 'Off'}</span>
-              </button>
-            </label>
-            <p className="muted toggle-hint">
-              {s.placement === 'repeat'
-                ? 'The motif tiles around the circumference.'
-                : 'The motif sits once on the front; the rest is plain.'}
-            </p>
+            <div className="toggle-field">
+              <label className="toggle-row">
+                <span className="control-label">
+                  Repeat pattern around the hat
+                </span>
+                <button
+                  type="button"
+                  className={`toggle ${s.placement === 'repeat' ? 'on' : ''}`}
+                  role="switch"
+                  aria-checked={s.placement === 'repeat'}
+                  onClick={() => s.set({ placement: s.placement === 'repeat' ? 'single' : 'repeat', tileVertical: false })}
+                >
+                  <span className="toggle-knob" />
+                  <span className="sr-only">{s.placement === 'repeat' ? 'On' : 'Off'}</span>
+                </button>
+              </label>
+              <p className="muted toggle-hint">
+                {s.placement === 'repeat'
+                  ? 'The motif tiles around the circumference.'
+                  : 'The motif sits once on the front; the rest is plain.'}
+              </p>
+            </div>
 
             {widthChoices.length > 0 && (
               <div className="slider width-slider">
                 <div className="width-slider-head">
-                  <span className="field-label" style={{ marginBottom: 0 }}>
+                  <span className="control-label">
                     Motif width
                   </span>
                   {s.placement === 'repeat' && Number.isFinite(repeatsAround) && repeatsAround > 0 && (
@@ -405,6 +418,17 @@ export function ChartEditor({ onGenerate }: { onGenerate?: () => void }) {
             <button onClick={eraseAll} title="Erase everything">
               <Icon name="close" size={15} />
               <span className="tool-label">Erase</span>
+            </button>
+            <button
+              onClick={() => {
+                setActiveMotif('');
+                setImageOpen(true);
+              }}
+              title="Make a motif from an image"
+              aria-haspopup="dialog"
+            >
+              <Icon name="image" size={15} />
+              <span className="tool-label">Image</span>
             </button>
             <span className="tool-divider" aria-hidden />
             <button onClick={() => s.replaceChart(shiftChart(chart, -1, 0))} title="Slide left">
@@ -489,11 +513,13 @@ export function ChartEditor({ onGenerate }: { onGenerate?: () => void }) {
         </div>
 
         <div className="generate-row">
-          <button type="button" className="btn primary" onClick={generateChart}>
+          <Button variant="primary" onClick={generateChart}>
             Generate chart <Icon name="right" />
-          </button>
+          </Button>
         </div>
       </div>
+
+      {imageOpen && <ImageMotifDialog onClose={() => setImageOpen(false)} />}
     </section>
   );
 }

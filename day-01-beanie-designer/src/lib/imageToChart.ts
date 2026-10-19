@@ -26,8 +26,22 @@ export function loadImage(file: File): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
     const img = new Image();
     img.onload = () => resolve(img);
-    img.onerror = reject;
+    img.onerror = () => reject(new Error('Could not read that image file.'));
     img.src = URL.createObjectURL(file);
+  });
+}
+
+/** Load from a URL or data: URI. Remote hosts must allow CORS. */
+export function loadImageFromUrl(url: string): Promise<HTMLImageElement> {
+  const trimmed = url.trim();
+  if (!trimmed) return Promise.reject(new Error('Paste an image link first.'));
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    if (!trimmed.startsWith('data:') && !trimmed.startsWith('blob:')) img.crossOrigin = 'anonymous';
+    img.onload = () => resolve(img);
+    img.onerror = () =>
+      reject(new Error('Could not load that link. Upload a file instead — some sites block hotlinking.'));
+    img.src = trimmed;
   });
 }
 

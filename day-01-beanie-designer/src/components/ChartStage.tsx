@@ -38,7 +38,7 @@ export function ChartStage() {
   return (
     <div className="chart-stage">
       <div className="chart-stage-bar">
-        <span className="field-label" style={{ marginBottom: 0 }}>
+        <span className="field-label flush">
           Colorwork chart
         </span>
         <div className="seg compact pattern-zoom-seg" role="group" aria-label="Chart zoom">

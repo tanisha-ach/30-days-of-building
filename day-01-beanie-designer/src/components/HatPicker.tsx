@@ -19,7 +19,7 @@ export function HatPicker({ locked = false }: { locked?: boolean }) {
       <div className="hat-picker-panel locked">
         <div className="collapse-head locked-head">
           <span className="collapse-title">
-            <span className="field-label" style={{ marginBottom: 0 }}>
+            <span className="field-label flush">
               Beanie type & size
             </span>
             <span className="collapse-summary">
@@ -41,7 +41,7 @@ export function HatPicker({ locked = false }: { locked?: boolean }) {
         onClick={() => setOpen((v) => !v)}
       >
         <span className="collapse-title">
-          <span className="field-label" style={{ marginBottom: 0 }}>
+          <span className="field-label flush">
             Beanie type & size
           </span>
           {!open && (
@@ -74,7 +74,7 @@ export function HatPicker({ locked = false }: { locked?: boolean }) {
 
           <div className="field">
             <div className="width-slider-head">
-              <span className="field-label" style={{ marginBottom: 0 }}>
+              <span className="field-label flush">
                 Size
               </span>
               <b>
